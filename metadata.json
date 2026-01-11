@@ -1,0 +1,7 @@
+{
+  "name": "HealthGuard AI",
+  "description": "A modern, accessible personal healthcare companion powered by Gemini AI. Features appointment booking, health records, and an AI wellness assistant.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
