@@ -1,9 +1,24 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lazy initialization to prevent crashes if environment variables are missing during initial render/deployment
+// This makes the app "deployment safe" even if keys aren't set up yet.
+const getAIClient = () => {
+  try {
+    // Safety check for process.env to prevent ReferenceErrors in some browser environments
+    if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+      return new GoogleGenAI({ apiKey: process.env.API_KEY });
+    }
+  } catch (e) {
+    console.error("Environment configuration error:", e);
+  }
+  return null;
+};
 
 export const generateHealthTip = async (): Promise<string> => {
   try {
+    const ai = getAIClient();
+    if (!ai) return "Stay hydrated and keep moving! (AI System Offline)";
+
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: 'Provide a single, short, actionable daily health tip (max 20 words) for a general audience. Keep it encouraging.',
@@ -20,6 +35,9 @@ export const chatWithHealthAssistant = async (
   newMessage: string
 ): Promise<string> => {
   try {
+    const ai = getAIClient();
+    if (!ai) return "I apologize, I am currently offline due to a pending configuration. Please check your API key settings.";
+
     const chat = ai.chats.create({
       model: 'gemini-3-flash-preview',
       config: {
